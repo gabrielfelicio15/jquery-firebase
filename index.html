@@ -3,12 +3,32 @@
 <head>
     <title>haha</title>
 </head>
+<div>
+    <button id="addBtn">
+        Add something
+    </button>
+    <p>
+        here are the things!
+        <div id="tasks">
+        </div>
+    </p>
+</div>
 
 <body>
     <script src="jquery.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/3.3.0/firebase.js"></script>
     <script>
     $(document).ready(function() {
+
+        $("#addBtn").on('click', function() {
+            var value = window.prompt("Show me to do");
+            if (value != null) {
+                console.log("got value!");
+                var newPostKey = firebase.database().ref().child('users').push().key;
+                writeUserData(newPostKey, value);
+            }
+        });
+
         var config = {
             apiKey: "AIzaSyCrdayyWxFaf0LvdOIzQHIw3GG4FIk4mp8",
             authDomain: "todo-6fa0e.firebaseapp.com",
@@ -25,11 +45,17 @@
         }
 
         var userCountRef = firebase.database().ref('users');
-        userCountRef.on('value', function(snapshot) {
-        	console.log(snapshot.val());
+        userCountRef.on('child_added', function(snapshot) {
+            console.log("child added")
+            $('#tasks').append("<span>" + snapshot.val().username + "</span><br/>");
         });
 
-       // writeUserData(1, "haha")
+        userCountRef.on('child_removed', function(snapshot) {
+            console.log("child removed")
+            console.log(snapshot.val());
+        });
+
+        // writeUserData(1, "haha")
     });
     </script>
 </body>
