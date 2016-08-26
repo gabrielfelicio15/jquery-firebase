@@ -4,13 +4,14 @@
     <title>haha</title>
 </head>
 <div>
+    <button class="closeBtn">Close</button>
     <button id="addBtn">
         Add something
     </button>
     <p>
         here are the things!
-        <div id="tasks">
-        </div>
+        <ul id="tasks">
+        </ul>
     </p>
 </div>
 
@@ -29,6 +30,22 @@
             }
         });
 
+        $('body').on('click', '.closeBtn', function() {
+            console.log($(this).parent().index());
+            var index = $(this).parent().index() + 1;
+            var id = $("#tasks li:nth-child(" + index + ")").attr('id');
+            $("#tasks li:nth-child(" + index + ")").remove();
+            firebase.database().ref('users/' + id).remove();
+            // var confirm = window.confirm("Are you sure you want to delete?");
+            // if (confirm) {
+            //     //remove the data from the firebase
+            //     //let the event listener in the firebase handle the actual dom removal
+            //     var id = $(this).parent().parent().attr('id');
+            //     firebase.database().ref('users/' + id).remove();
+            // }
+
+        });
+
         var config = {
             apiKey: "AIzaSyCrdayyWxFaf0LvdOIzQHIw3GG4FIk4mp8",
             authDomain: "todo-6fa0e.firebaseapp.com",
@@ -40,6 +57,7 @@
 
         function writeUserData(userId, name) {
             firebase.database().ref('users/' + userId).set({
+                id: userId,
                 username: name,
             });
         }
@@ -47,12 +65,12 @@
         var userCountRef = firebase.database().ref('users');
         userCountRef.on('child_added', function(snapshot) {
             console.log("child added")
-            $('#tasks').append("<span>" + snapshot.val().username + "</span><br/>");
+            $('#tasks').append("<li id=" + snapshot.val().id + ">" + snapshot.val().username + "<button class='closeBtn'>X</button></li>");
         });
 
         userCountRef.on('child_removed', function(snapshot) {
             console.log("child removed")
-            console.log(snapshot.val());
+            $("#" + snapshot.val().id).remove();
         });
 
         // writeUserData(1, "haha")
